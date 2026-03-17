@@ -27,6 +27,7 @@ export default function RootLayout({
      
         
       <body className={`${outfit.className} h-screen overflow-hidden flex flex-col`}>
+        
         <Navbar />
          <ToastContainer />
         <main className="flex-1 overflow-hidden">

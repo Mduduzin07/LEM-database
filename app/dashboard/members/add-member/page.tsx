@@ -13,7 +13,8 @@ import { useRouter } from "next/navigation";
 interface MemberDetails {
   firstName: string;
   lastName: string;
-  email: string;
+  gender: string;
+  email?: string;
   address: string;
   phone: string;
   role: string;
@@ -25,6 +26,7 @@ export default function AddMemberForm() {
   const [form, setForm] = useState<MemberDetails>({
     firstName: "",
     lastName: "",
+    gender: "",
     email: "",
     phone: "",
     address: "",
@@ -32,11 +34,22 @@ export default function AddMemberForm() {
   });
 
   const submit = async () => {
-    const { firstName, lastName, email, phone, address, role } = form;
+    const { firstName, lastName, phone, address, role, email } = form;
 
     // Validate required details first
-    if (!firstName || !lastName || !email || !phone || !address || !role) {
-      return toast.error("All fields are required");
+    if (!firstName || !lastName || !phone || !address || !role) {
+      return toast.error("Required fields are missing");
+    }
+
+    if (phone.length !== 10) {
+      return toast.error("Phone must be 10 digits");
+    } else if (firstName.length < 3 || lastName.length < 3) {
+      toast.error("Names must be at least 3 characters");
+    }
+
+    // Email validation
+    if (email && !email.includes("@")) {
+      return toast.error("Please enter a valid email address");
     }
 
     try {
@@ -60,13 +73,14 @@ export default function AddMemberForm() {
       setForm({
         firstName: "",
         lastName: "",
+        gender: "",
         email: "",
         phone: "",
         address: "",
         role: "",
       });
 
-      // refresh dashboard 
+      // refresh dashboard
       router.refresh();
 
       // redirect back
@@ -78,7 +92,7 @@ export default function AddMemberForm() {
 
   return (
     <div className="flex justify-center">
-      <Card className="w-2/5 my-10">
+      <Card className="w-full mx-2 my-10 sm:w-2/5">
         <CardTitle>
           <a href="/dashboard/members">
             <span className="w-40 ml-5 rounded-md flex items-center hover:bg-black hover:text-white">
@@ -90,6 +104,7 @@ export default function AddMemberForm() {
 
         <CardContent>
           <Input
+            required
             id="firstName"
             className="my-3"
             placeholder="First name"
@@ -98,6 +113,7 @@ export default function AddMemberForm() {
           />
 
           <Input
+            required
             id="lastName"
             className="my-3"
             placeholder="Last name"
@@ -105,15 +121,28 @@ export default function AddMemberForm() {
             onChange={(e) => setForm({ ...form, lastName: e.target.value })}
           />
 
+          <select
+            required
+            id="gender"
+            className="my-3 w-full border rounded-md p-2 text-slate-600"
+            value={form.gender}
+            onChange={(e) => setForm({ ...form, gender: e.target.value })}
+          >
+            <option value="">Please select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+
           <Input
             id="email"
             className="my-3"
-            placeholder="Email"
+            placeholder="Email (optional)"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
 
           <Input
+            required
             className="my-3"
             placeholder="Phone"
             value={form.phone}
@@ -121,6 +150,7 @@ export default function AddMemberForm() {
           />
 
           <Textarea
+            required
             id="address"
             className="my-3 min-h-25"
             placeholder="Enter the address"
@@ -129,8 +159,9 @@ export default function AddMemberForm() {
           />
 
           <select
+            required
             id="role"
-            className="my-3 w-full border rounded-md p-2"
+            className="text-slate-600 my-3 w-full border rounded-md p-2"
             value={form.role}
             onChange={(e) => setForm({ ...form, role: e.target.value })}
           >
@@ -146,7 +177,7 @@ export default function AddMemberForm() {
 
       <SpinningText
         radius={6}
-        className="w-1/3 text-2xl text-black animate-[spin_40s_linear_infinite] 
+        className="hidden w-1/3 text-2xl text-black animate-[spin_40s_linear_infinite] 
         drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]"
       >
         Liberation • and • Empowerment • Ministries •

@@ -47,8 +47,9 @@ export function MembersTable({ data }: Props) {
       <div className="h-125 overflow-y-auto border rounded-lg">
         {/* TABLE */}
         <div className="border rounded-lg">
+           
           <table className="w-full">
-            <thead className="sticky top-0 bg-white z-10">
+            <thead className="sticky top-0 bg-slate-300 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
@@ -78,10 +79,11 @@ export function MembersTable({ data }: Props) {
               ))}
             </tbody>
           </table>
+        
         </div>
 
         {/* PAGINATION */}
-        <div className="flex items-center justify-between mt-4 mx-4">
+        <div className="flex items-center justify-between my-4 mx-4">
           {/* Showing text */}
           <p className="text-sm text-muted-foreground">
             {table.getState().pagination.pageIndex *

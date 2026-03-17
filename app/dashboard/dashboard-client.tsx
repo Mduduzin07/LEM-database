@@ -23,7 +23,10 @@ import {
   Calendar,
   DollarSign,
   Church,
-  Network
+  Network,
+  CrossIcon,
+  ChurchIcon,
+  CrownIcon
 } from "lucide-react"
 
 const WarpBackground = dynamic(
@@ -45,7 +48,7 @@ export default function DashboardClient({ stats }: Props) {
 
   return (
     <SidebarProvider>
-      <div className="flex w-full min-h-[calc(100vh-64px)]">
+      <div className="flex w-full">
 
         {/* Sidebar */}
         <Sidebar className="border-r h-[calc(100vh-64px)] mt-18 w-64 shrink-0">
@@ -69,6 +72,7 @@ export default function DashboardClient({ stats }: Props) {
               </SidebarMenuItem>
 
               <SidebarMenuItem
+              id="sidebar"
                 onClick={() => router.push("/dashboard/members")}
                 className={`flex items-center gap-2 p-2 rounded-md cursor-pointer
                 ${pathname === "/dashboard/members"
@@ -80,6 +84,7 @@ export default function DashboardClient({ stats }: Props) {
               </SidebarMenuItem>
 
               <SidebarMenuItem
+              id="events"
                 onClick={() => router.push("/dashboard/events")}
                 className="flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-muted"
               >
@@ -88,11 +93,28 @@ export default function DashboardClient({ stats }: Props) {
               </SidebarMenuItem>
 
               <SidebarMenuItem
+              id="offerings"
                 onClick={() => router.push("/dashboard/offerings")}
                 className="flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-muted"
               >
                 <DollarSign className="h-4 w-4" />
                 Offerings
+              </SidebarMenuItem>
+              <SidebarMenuItem
+              id="pastors"
+                onClick={() => router.push("/dashboard/offerings")}
+                className="flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-muted"
+              >
+                <ChurchIcon className="h-4 w-4" />
+                Pastors
+              </SidebarMenuItem>
+              <SidebarMenuItem
+              id="hod"
+                onClick={() => router.push("/dashboard/offerings")}
+                className="flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-muted"
+              >
+                <CrownIcon className="h-4 w-4" />
+                Head of Department
               </SidebarMenuItem>
 
             </SidebarMenu>

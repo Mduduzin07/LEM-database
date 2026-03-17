@@ -11,12 +11,38 @@ import {
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { useSession } from "@/lib/auth/auth-client";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import SignOutButton from "./sign-out-btn";
+import { MenuIcon, SidebarClose } from "lucide-react";
+import { usePathname } from "next/navigation";
+ 
+
+
 
 export default function Navbar() {
   const { data: session, isPending } = useSession();
+  const [showSidebar, setShowSidebar] = useState(false);
+
+  const pathname= usePathname()
+const linkClass = (path: string) =>
+    `cursor-pointer border-b px-2 py-2 rounded transition 
+     ${
+       pathname === path
+         ? "bg-amber-500 text-black font-semibold"
+         : "hover:bg-slate-600 hover:text-white"
+     }`;
+
+
   return (
+    <>
+     {/* DARK OVERLAY */}
+      {showSidebar && (
+        <div
+          onClick={() => setShowSidebar(false)}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+        />
+      )}
+
     <nav
       className="
       sticky top-0 z-50
@@ -30,7 +56,7 @@ export default function Navbar() {
     "
     >
       {/* Logo */}
-      <div className="flex items-center pl-5">
+      <div className="hidden sm:flex items-center pl-5">
         <Link href="/">
           <img
             className="w-10 sm:w-12 mr-4 rounded-full"
@@ -39,9 +65,31 @@ export default function Navbar() {
           />
         </Link>
 
-        <p className="text-sm sm:text-base font-bold text-black">
+        <p className="hidden text-sm sm:text-base font-bold text-black">
           LEM ministries
         </p>
+      </div>
+      <MenuIcon onClick={()=>setShowSidebar(true)} className="text-black ml-4 size-6 md:hidden" />
+
+      <div className={`fixed top-0 left-0 h-screen w-60 bg-linear-to-tl from-black via-amber-700/90 to-black text-white p-6 transform transition-transform duration-300
+        ${showSidebar ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="flex items-center justify-between mb-3">
+        <p className="font-bold">LEM Ministries</p>
+
+        <SidebarClose
+          className="cursor-pointer"
+          onClick={() => setShowSidebar(false)}
+        />
+        </div>
+
+       <div className="flex flex-col gap-4">
+        <Link onClick={() => setShowSidebar(false)} className={`border-b ${linkClass("/dashboard")}`} href="/dashboard">Dashboard</Link>
+        <Link onClick={() => setShowSidebar(false)} className={`border-b ${linkClass("/dashboard/members")}`} href="/dashboard/members">Members</Link>
+        <Link onClick={() => setShowSidebar(false)} className={`border-b ${linkClass("/events")}`} href="/events">Events</Link>
+        <Link onClick={() => setShowSidebar(false)} className={`border-b ${linkClass("/offerings")}`} href="/offerings">Offerings</Link>
+        <Link onClick={() => setShowSidebar(false)} className={`border-b ${linkClass("/pastors")}`} href="/pastors">Pastors</Link>
+        <Link onClick={() => setShowSidebar(false)} className={`border-b ${linkClass("/hod")}`} href="/hod">Head of Departments</Link>
+       </div>
       </div>
 
       {session?.user ? (
@@ -115,5 +163,6 @@ export default function Navbar() {
         </div>
       )}
     </nav>
+    </>
   );
 }

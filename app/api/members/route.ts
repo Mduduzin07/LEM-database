@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Member from "@/lib/models/member";
-import { toast } from "react-toastify";
+
 
 export async function POST(req: Request) {
   try {
@@ -9,33 +9,54 @@ export async function POST(req: Request) {
 
     const body = await req.json();
 
-    const { firstName, lastName, email, phone, address, role } = body;
+    const { firstName, lastName, email, phone, address, role, gender } = body;
 
-    if (!firstName || !lastName || !email || !phone || !address || !role) {
+    if (
+      !firstName ||
+      !lastName ||
+      !phone ||
+      !address ||
+      !gender ||
+      !role
+    ) {
       return NextResponse.json(
         { error: "All fields are required" },
         { status: 400 },
       );
     }
 
+    // Check for existing member with phone only (email is optional)
     const existingMember = await Member.findOne({
-      $or: [{ email }, { phone }],
+      $or: [
+        { phone },
+        ...(email ? [{ email }] : []), // Only check email if it's provided
+      ],
     });
 
     if (existingMember) {
-      return NextResponse.json(
-        { error: "Member with this email or phone already exists" },
-        { status: 400 },
-      );
+      
+      if (email && existingMember.email === email) {
+        return NextResponse.json(
+          { error: "Member with this email already exists" },
+          { status: 400 },
+        );
+      }
+      if (existingMember.phone === phone) {
+        return NextResponse.json(
+          { error: "Member with this phone number already exists" },
+          { status: 400 },
+        );
+      }
     }
 
     const newMember = await Member.create({
       firstName,
       lastName,
-      email,
+      email: email || null,
       phone,
       address,
       role,
+      gender
     });
 
     return NextResponse.json(newMember, { status: 201 });

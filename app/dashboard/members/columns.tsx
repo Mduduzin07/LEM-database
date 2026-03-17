@@ -14,6 +14,7 @@ export type Member = {
   _id: string;
   firstName: string;
   lastName: string;
+  gender:string;
   email: string;
   phone: string;
   address: string;
@@ -75,6 +76,10 @@ export const columns: ColumnDef<Member>[] = [
     accessorKey: "lastName",
     header: "Last Name",
   },
+  {
+    accessorKey: "gender",
+    header: "Gender",
+  },
 
   {
     accessorKey: "email",
@@ -107,6 +112,7 @@ export const columns: ColumnDef<Member>[] = [
       return <Badge variant="secondary">Member</Badge>;
     },
   },
+  
 
   {
     id: "actions",
