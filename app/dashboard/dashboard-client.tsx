@@ -22,12 +22,12 @@ import {
   Users,
   Calendar,
   DollarSign,
-  Church,
-  Network,
-  CrossIcon,
   ChurchIcon,
-  CrownIcon
+  CrownIcon,
+  UserPlus,
+  UsersRound
 } from "lucide-react"
+import { redirect } from "next/navigation"
 
 const WarpBackground = dynamic(
   () => import("@/components/ui/warp-background").then((m) => m.WarpBackground),
@@ -37,7 +37,7 @@ const WarpBackground = dynamic(
 type Props = {
   stats: {
     totalMembers: number
-    newMembers: number
+    newMembersThisMonth: number
   }
 }
 
@@ -46,9 +46,17 @@ export default function DashboardClient({ stats }: Props) {
   const pathname = usePathname()
   const router = useRouter()
 
+  // Provide default values in case stats is partially undefined
+  const safeStats = {
+    totalMembers: stats?.totalMembers ?? 0,
+    newMembersThisMonth: stats?.newMembersThisMonth ?? 0
+  }
+
+  const currentMonth = new Date().toLocaleString('default', { month: 'long' })
+
   return (
     <SidebarProvider>
-      <div className="flex w-full">
+      <div className="flex w-full overflow-y-auto h-screen">
 
         {/* Sidebar */}
         <Sidebar className="border-r h-[calc(100vh-64px)] mt-18 w-64 shrink-0">
@@ -72,7 +80,6 @@ export default function DashboardClient({ stats }: Props) {
               </SidebarMenuItem>
 
               <SidebarMenuItem
-              id="sidebar"
                 onClick={() => router.push("/dashboard/members")}
                 className={`flex items-center gap-2 p-2 rounded-md cursor-pointer
                 ${pathname === "/dashboard/members"
@@ -84,7 +91,6 @@ export default function DashboardClient({ stats }: Props) {
               </SidebarMenuItem>
 
               <SidebarMenuItem
-              id="events"
                 onClick={() => router.push("/dashboard/events")}
                 className="flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-muted"
               >
@@ -93,24 +99,23 @@ export default function DashboardClient({ stats }: Props) {
               </SidebarMenuItem>
 
               <SidebarMenuItem
-              id="offerings"
                 onClick={() => router.push("/dashboard/offerings")}
                 className="flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-muted"
               >
                 <DollarSign className="h-4 w-4" />
                 Offerings
               </SidebarMenuItem>
+              
               <SidebarMenuItem
-              id="pastors"
-                onClick={() => router.push("/dashboard/offerings")}
+                onClick={() => router.push("/dashboard/pastors")}
                 className="flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-muted"
               >
                 <ChurchIcon className="h-4 w-4" />
                 Pastors
               </SidebarMenuItem>
+              
               <SidebarMenuItem
-              id="hod"
-                onClick={() => router.push("/dashboard/offerings")}
+                onClick={() => router.push("/dashboard/hod")}
                 className="flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-muted"
               >
                 <CrownIcon className="h-4 w-4" />
@@ -121,40 +126,88 @@ export default function DashboardClient({ stats }: Props) {
           </SidebarContent>
 
           <SidebarFooter>
-            <img className="w-38 rounded-full" src="/logo.jpeg" alt="" />
+            <img className="w-38 rounded-full" src="/logo.jpeg" alt="Church Logo" />
           </SidebarFooter>
 
         </Sidebar>
 
-
         {/* Main Content */}
-        <WarpBackground className="flex-1 p-8 pt-25 overflow-auto">
+        <WarpBackground className="flex-1 p-8 pt-25">
 
           <div className="mb-8">
-            <AuroraText className="text-3xl font-bold">
+            <AuroraText className="text-4xl font-bold sm:text-3xl sm:font-bold">
               Dashboard
             </AuroraText>
-            <p className="text-muted-foreground">
+            <p className="text-xl text-muted-foreground">
               Welcome to the church management system
             </p>
           </div>
 
+          {/* Stats Cards */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-
-            <Card>
-              <CardContent className="p-6">
-                <CardTitle>Total Members</CardTitle>
+            
+            {/* Card 1: Total Members */}
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-amber-600">
+              <CardContent className="p-6" onClick={()=>redirect("/dashboard/members")}>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    TOTAL MEMBERS
+                  </CardTitle>
+                  <UsersRound className="h-5 w-5 text-amber-600" />
+                </div>
                 <p className="text-3xl font-bold mt-2">
-                  {stats.totalMembers}
+                  {safeStats.totalMembers.toLocaleString()}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  All registered members
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            {/* Card 2: New Members This Month */}
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-green-600">
               <CardContent className="p-6">
-                <CardTitle>New Members</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    NEW MEMBERS
+                  </CardTitle>
+                  <UserPlus className="h-5 w-5 text-green-600" />
+                </div>
                 <p className="text-3xl font-bold mt-2">
-                  {stats.newMembers}
+                  {safeStats.newMembersThisMonth.toLocaleString()}
+                </p>
+                <div className="flex items-center justify-between mt-1">
+                  <p className="text-xs text-muted-foreground">
+                    Total number of members joined this month of <span className="font-bold">{currentMonth}</span>
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          
+
+            {/* Placeholder Cards */}
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow opacity-50">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    UPCOMING EVENTS
+                  </CardTitle>
+                </div>
+                <p className="text-2xl font-bold mt-2 text-muted-foreground">
+                  0
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow opacity-50">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    OFFERINGS
+                  </CardTitle>
+                </div>
+                <p className="text-2xl font-bold mt-2 text-muted-foreground">
+                  R0
                 </p>
               </CardContent>
             </Card>

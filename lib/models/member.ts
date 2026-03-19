@@ -21,7 +21,7 @@ const memberSchema = new mongoose.Schema(
    
     role: {
       type: String,
-      enum: ["member", "pastor", "admin"],
+      enum: ["member", "pastor", "admin","leader"],
       default: "member",
     },
     joinedAt: {
@@ -32,8 +32,6 @@ const memberSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// sparse index allow multiple null email fields
-// memberSchema.index({ email: 1 }, { unique: true, sparse: true });
 
 export default mongoose.models.Member ||
   mongoose.model("Member", memberSchema);

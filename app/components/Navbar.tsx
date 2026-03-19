@@ -65,7 +65,7 @@ const linkClass = (path: string) =>
           />
         </Link>
 
-        <p className="hidden text-sm sm:text-base font-bold text-black">
+        <p className="hidden text-sm sm:flex sm:text-base font-bold text-black">
           LEM ministries
         </p>
       </div>

@@ -108,6 +108,9 @@ export const columns: ColumnDef<Member>[] = [
       if (role === "pastor") {
         return <Badge className="bg-amber-500 text-black">Pastor</Badge>;
       }
+      if (role === "leader") {
+        return <Badge className="bg-blue-600 text-white">Leader</Badge>;
+      }
 
       return <Badge variant="secondary">Member</Badge>;
     },

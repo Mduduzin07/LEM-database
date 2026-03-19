@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Middleware - Next.js Route Protection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            color: #0f172a;
+            line-height: 1.6;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            border-radius: 2rem;
+            padding: 3rem 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: #e2e8f0;
+            margin-bottom: 2rem;
+        }
+
+        .badge-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 0.75rem 2rem;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            font-family: 'Fira Code', 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid #334155;
+            position: relative;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .code-block::before {
+            content: '📁 middleware.ts';
+            position: absolute;
+            top: -12px;
+            left: 2rem;
+            background: #4338ca;
+            color: white;
+            padding: 0.3rem 1.5rem;
+            border-radius: 100px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .keyword { color: #f59e0b; }
+        .string { color: #10b981; }
+        .comment { color: #94a3b8; }
+        .function { color: #818cf8; }
+        .property { color: #60a5fa; }
+
+        /* Cards Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: white;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2);
+            border: 1px solid #e2e8f0;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        }
+
+        .card-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #1e293b;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        /* Flow Diagram */
+        .flow-diagram {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin: 2rem 0;
+            color: white;
+        }
+
+        .flow-title {
+            text-align: center;
+            color: #818cf8;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+
+        .flow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .flow-step {
+            flex: 1;
+            min-width: 160px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .flow-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .flow-arrow {
+            color: #818cf8;
+            font-size: 1.5rem;
+            font-weight: 300;
+        }
+
+        .flow-decision {
+            background: #312e81;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Path Table */
+        .path-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .path-table th {
+            background: #f8fafc;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .path-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .path-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .path-table tr:hover td {
+            background: #f1f5f9;
+        }
+
+        .protected-badge {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .auth-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-left: 4px solid #3b82f6;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-left: 4px solid #f59e0b;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-left: 4px solid #10b981;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        /* Scenario Cards */
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .scenario-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .scenario-card:hover {
+            transform: translateY(-4px);
+            border-color: #818cf8;
+            box-shadow: 0 10px 25px -5px #818cf840;
+        }
+
+        .scenario-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .scenario-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #0f172a;
+        }
+
+        .scenario-result {
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .result-redirect {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .result-allow {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        /* Matcher Config */
+        .matcher-config {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-family: monospace;
+            margin: 1rem 0;
+        }
+
+        .matcher-pattern {
+            display: inline-block;
+            background: #1e293b;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            margin: 0.25rem;
+            border: 1px solid #334155;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 3rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .header h1 { font-size: 2rem; }
+            .scenario-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Print */
+        @media print {
+            body { background: white; }
+            .code-block { background: #f5f5f5; color: #333; }
+            .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🔒 Authentication Middleware</h1>
+                <p class="subtitle">Next.js Route Protection & Session Management</p>
+                <div class="badge-container">
+                    <span class="badge">Next.js 14</span>
+                    <span class="badge">Middleware</span>
+                    <span class="badge">Auth</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Code Block -->
+        <div class="code-block">
+            <pre>
+<span class="keyword">import</span> { NextRequest, NextResponse } from <span class="string">"next/server"</span>;
+<span class="keyword">import</span> { getSession } from <span class="string">"./lib/auth/auth"</span>;
+
+<span class="keyword">export default async function</span> <span class="function">proxy</span>(request: NextRequest) {
+  <span class="comment">// Get user session</span>
+  <span class="keyword">const</span> session = <span class="keyword">await</span> getSession();
+
+  <span class="comment">// Get current path</span>
+  <span class="keyword">const</span> pathname = request.nextUrl.pathname;
+
+  <span class="comment">// Define route types</span>
+  <span class="keyword">const</span> isAuthPage =
+    pathname.startsWith(<span class="string">"/sign-in"</span>) || pathname.startsWith(<span class="string">"/sign-up"</span>);
+
+  <span class="keyword">const</span> isDashboardPage = pathname.startsWith(<span class="string">"/dashboard"</span>);
+
+  <span class="comment">// Logged in users should not see auth pages</span>
+  <span class="keyword">if</span> (isAuthPage && session?.user) {
+    <span class="keyword">return</span> NextResponse.redirect(<span class="keyword">new</span> URL(<span class="string">"/dashboard"</span>, request.url));
+  }
+
+  <span class="comment">// Not logged in users should not access dashboard</span>
+  <span class="keyword">if</span> (isDashboardPage && !session?.user) {
+    <span class="keyword">return</span> NextResponse.redirect(<span class="keyword">new</span> URL(<span class="string">"/sign-in"</span>, request.url));
+  }
+
+  <span class="comment">// Allow request to proceed</span>
+  <span class="keyword">return</span> NextResponse.next();
+}
+
+<span class="keyword">export const</span> config = {
+  matcher: [<span class="string">"/dashboard/:path*"</span>, <span class="string">"/sign-in"</span>, <span class="string">"/sign-up"</span>],
+};</pre>
+        </div>
+
+        <!-- Route Protection Overview -->
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2>🛡️ Protected Routes</h2>
+                </div>
+                <div class="card-content">
+                    <table class="path-table">
+                        <tr>
+                            <th>Route</th>
+                            <th>Type</th>
+                            <th>Access</th>
+                        </tr>
+                        <tr>
+                            <td><code>/dashboard</code></td>
+                            <td><span class="protected-badge">Protected</span></td>
+                            <td>Authenticated users only</td>
+                        </tr>
+                        <tr>
+                            <td><code>/dashboard/*</code></td>
+                            <td><span class="protected-badge">Protected</span></td>
+                            <td>Authenticated users only</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>🔓 Auth Routes</h2>
+                </div>
+                <div class="card-content">
+                    <table class="path-table">
+                        <tr>
+                            <th>Route</th>
+                            <th>Type</th>
+                            <th>Access</th>
+                        </tr>
+                        <tr>
+                            <td><code>/sign-in</code></td>
+                            <td><span class="auth-badge">Auth Page</span></td>
+                            <td>Redirect to dashboard if logged in</td>
+                        </tr>
+                        <tr>
+                            <td><code>/sign-up</code></td>
+                            <td><span class="auth-badge">Auth Page</span></td>
+                            <td>Redirect to dashboard if logged in</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flow Diagram -->
+        <div class="flow-diagram">
+            <h3 class="flow-title">🔄 Request Flow</h3>
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <div class="flow-icon">📨</div>
+                    <div>Incoming Request</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">👤</div>
+                    <div>Get Session</div>
+                    <div class="flow-decision">await getSession()</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">🔍</div>
+                    <div>Check Path</div>
+                    <div class="flow-decision">isAuthPage? isDashboardPage?</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">⚡</div>
+                    <div>Apply Rules</div>
+                    <div class="flow-decision">Redirect or Allow</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scenarios -->
+        <h2 style="margin: 2rem 0 1rem;">📋 Access Scenarios</h2>
+        <div class="scenario-grid">
+            <div class="scenario-card">
+                <div class="scenario-icon">👤➡️📊</div>
+                <div class="scenario-title">Authenticated User</div>
+                <div>Trying to access dashboard</div>
+                <div class="scenario-result result-allow">✅ ALLOW - Proceed to dashboard</div>
+            </div>
+            <div class="scenario-card">
+                <div class="scenario-icon">👤➡️🔓</div>
+                <div class="scenario-title">Authenticated User</div>
+                <div>Trying to access sign-in page</div>
+                <div class="scenario-result result-redirect">🔄 REDIRECT to /dashboard</div>
+            </div>
+            <div class="scenario-card">
+                <div class="scenario-icon">👻➡️📊</div>
+                <div class="scenario-title">Unauthenticated User</div>
+                <div>Trying to access dashboard</div>
+                <div class="scenario-result result-redirect">🔄 REDIRECT to /sign-in</div>
+            </div>
+            <div class="scenario-card">
+                <div class="scenario-icon">👻➡️🔓</div>
+                <div class="scenario-title">Unauthenticated User</div>
+                <div>Trying to access sign-in page</div>
+                <div class="scenario-result result-allow">✅ ALLOW - Show sign-in form</div>
+            </div>
+            <div class="scenario-card">
+                <div class="scenario-icon">👻➡️🏠</div>
+                <div class="scenario-title">Unauthenticated User</div>
+                <div>Trying to access public page</div>
+                <div class="scenario-result result-allow">✅ ALLOW - Not in matcher</div>
+            </div>
+            <div class="scenario-card">
+                <div class="scenario-icon">👤➡️🏠</div>
+                <div class="scenario-title">Authenticated User</div>
+                <div>Trying to access public page</div>
+                <div class="scenario-result result-allow">✅ ALLOW - Not in matcher</div>
+            </div>
+        </div>
+
+        <!-- Matcher Configuration -->
+        <div class="card" style="margin: 2rem 0;">
+            <div class="card-header">
+                <h2>⚙️ Matcher Configuration</h2>
+            </div>
+            <div class="card-content">
+                <div class="matcher-config">
+                    <span class="matcher-pattern">"/dashboard/:path*"</span>
+                    <span class="matcher-pattern">"/sign-in"</span>
+                    <span class="matcher-pattern">"/sign-up"</span>
+                </div>
+                <p style="margin-top: 1rem;"><strong>Explanation:</strong> The middleware only runs on these paths for performance optimization.</p>
+                <table class="path-table" style="margin-top: 1rem;">
+                    <tr>
+                        <th>Pattern</th>
+                        <th>Matches</th>
+                    </tr>
+                    <tr>
+                        <td><code>/dashboard/:path*</code></td>
+                        <td>/dashboard, /dashboard/members, /dashboard/settings, etc.</td>
+                    </tr>
+                    <tr>
+                        <td><code>/sign-in</code></td>
+                        <td>Exactly /sign-in</td>
+                    </tr>
+                    <tr>
+                        <td><code>/sign-up</code></td>
+                        <td>Exactly /sign-up</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Key Features -->
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2>✅ Key Features</h2>
+                </div>
+                <div class="card-content">
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Session-based authentication</li>
+                        <li>Protects dashboard routes</li>
+                        <li>Prevents logged-in users from seeing auth pages</li>
+                        <li>Optimized with matcher config</li>
+                        <li>Runs before page render</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>📦 Dependencies</h2>
+                </div>
+                <div class="card-content">
+                    <ul style="margin-left: 1.5rem;">
+                        <li><code>next/server</code> - NextRequest, NextResponse</li>
+                        <li><code>./lib/auth/auth</code> - getSession() function</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Important Notes -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin: 2rem 0;">
+            <div class="info-box">
+                <h4 style="margin-bottom: 1rem;">📌 How It Works</h4>
+                <ol style="margin-left: 1.5rem;">
+                    <li>Intercepts requests to matched routes</li>
+                    <li>Retrieves user session</li>
+                    <li>Checks current pathname</li>
+                    <li>Applies redirect rules based on auth state</li>
+                    <li>Either redirects or allows request</li>
+                </ol>
+            </div>
+
+            <div class="warning-box">
+                <h4 style="margin-bottom: 1rem;">⚠️ Important Notes</h4>
+                <ul style="margin-left: 1.5rem;">
+                    <li>Middleware runs on the edge</li>
+                    <li>Keep it lightweight</li>
+                    <li>Matcher optimizes performance</li>
+                    <li>Session must be available</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Code Breakdown -->
+        <div class="card" style="margin: 2rem 0;">
+            <div class="card-header">
+                <h2>🔍 Code Breakdown</h2>
+            </div>
+            <div class="card-content">
+                <div style="display: grid; gap: 1.5rem;">
+                    <div>
+                        <h4 style="color: #4338ca;">1. Get Session</h4>
+                        <div class="code-block" style="margin: 0.5rem 0; padding: 1rem;">
+                            <pre><span class="keyword">const</span> session = <span class="keyword">await</span> getSession();</pre>
+                        </div>
+                        <p>Retrieves the current user session from auth system</p>
+                    </div>
+                    <div>
+                        <h4 style="color: #4338ca;">2. Check Pathname</h4>
+                        <div class="code-block" style="margin: 0.5rem 0; padding: 1rem;">
+                            <pre><span class="keyword">const</span> pathname = request.nextUrl.pathname;
+<span class="keyword">const</span> isAuthPage = pathname.startsWith(<span class="string">"/sign-in"</span>) || pathname.startsWith(<span class="string">"/sign-up"</span>);
+<span class="keyword">const</span> isDashboardPage = pathname.startsWith(<span class="string">"/dashboard"</span>);</pre>
+                        </div>
+                        <p>Determines what type of page is being requested</p>
+                    </div>
+                    <div>
+                        <h4 style="color: #4338ca;">3. Apply Rules</h4>
+                        <div class="code-block" style="margin: 0.5rem 0; padding: 1rem;">
+                            <pre><span class="keyword">if</span> (isAuthPage && session?.user) {
+  <span class="keyword">return</span> NextResponse.redirect(<span class="keyword">new</span> URL(<span class="string">"/dashboard"</span>, request.url));
+}
+
+<span class="keyword">if</span> (isDashboardPage && !session?.user) {
+  <span class="keyword">return</span> NextResponse.redirect(<span class="keyword">new</span> URL(<span class="string">"/sign-in"</span>, request.url));
+}</pre>
+                        </div>
+                        <p>Redirects based on authentication status</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits -->
+        <div class="success-box">
+            <h4 style="margin-bottom: 1rem;">✨ Benefits of This Approach</h4>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                <div>🔒 <strong>Security</strong> - Protects routes at edge level</div>
+                <div>⚡ <strong>Performance</strong> - Runs before page loads</div>
+                <div>🎯 <strong>Precise</strong> - Only runs on matched routes</div>
+                <div>🔄 <strong>Automatic</strong> - No client-side checks needed</div>
+                <div>📱 <strong>UX</strong> - Prevents flash of protected content</div>
+                <div>🔧 <strong>Maintainable</strong> - Single source of truth for auth</div>
+            </div>
+        </div>
+
+        <!-- File Structure -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 1.5rem; padding: 2rem; margin: 2rem 0;">
+            <h3 style="margin-bottom: 1rem;">📁 File Structure</h3>
+            <div style="font-family: monospace; background: #f8fafc; padding: 1rem; border-radius: 0.5rem;">
+                <pre>
+project/
+├── middleware.ts              &lt;-- This file (runs on edge)
+├── lib/
+│   └── auth/
+│       └── auth.ts            &lt;-- getSession() function
+├── app/
+│   ├── dashboard/             &lt;-- Protected routes
+│   ├── sign-in/               &lt;-- Auth pages
+│   └── sign-up/                &lt;-- Auth pages</pre>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>🔒 Authentication Middleware Documentation</p>
+            <p style="margin: 1rem 0;">LEM Ministries Project | Next.js 14 | Edge Runtime</p>
+            <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                <span style="background: #f1f5f9; padding: 0.3rem 1rem; border-radius: 50px; font-size: 0.85rem;">Next.js</span>
+                <span style="background: #f1f5f9; padding: 0.3rem 1rem; border-radius: 50px; font-size: 0.85rem;">Middleware</span>
+                <span style="background: #f1f5f9; padding: 0.3rem 1rem; border-radius: 50px; font-size: 0.85rem;">Auth</span>
+                <span style="background: #f1f5f9; padding: 0.3rem 1rem; border-radius: 50px; font-size: 0.85rem;">TypeScript</span>
+            </div>
+            <p style="margin-top: 2rem; font-size: 0.85rem;">Version 1.0 | Last Updated: 2024</p>
+        </footer>
+    </div>
+</body>
+</html>

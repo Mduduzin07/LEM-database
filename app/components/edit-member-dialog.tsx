@@ -21,6 +21,7 @@ export default function EditMemberDialog({ member, open, setOpen }: any) {
     firstName: member.firstName,
     lastName: member.lastName,
     email: member.email,
+    gender:member.gender,
     phone: member.phone,
     address: member.address,
     role: member.role
@@ -62,48 +63,82 @@ export default function EditMemberDialog({ member, open, setOpen }: any) {
         </DialogHeader>
 
         <div className="space-y-3">
-
-          <Input
+         <span>
+          <p className="text-xs text-slate-500">First name</p>
+           <Input className="mb-1 "
             value={form.firstName}
             onChange={(e) =>
               setForm({ ...form, firstName: e.target.value })
             }
           />
-
-          <Input
+         </span>
+         <span>
+          <p className="text-xs  text-slate-500">Last name</p>
+           <Input className="mb-1"
             value={form.lastName}
             onChange={(e) =>
               setForm({ ...form, lastName: e.target.value })
             }
           />
-
-          <Input
+         </span>
+         <span>
+          <p className="text-xs text-slate-500">Gender</p>
+           <select
+            required
+            id="gender"
+            className="w-full mb-1 text-sm p-1 border rounded-md text-slate-600"
+            value={form.gender}
+            onChange={(e) => setForm({ ...form, gender: e.target.value })}
+          >
+            <option className="px-4 text-xs" value="">Please select gender</option>
+            <option className="px-4 text-xs" value="male">Male</option>
+            <option className="px-4 text-xs" value="female">Female</option>
+          </select>
+         </span>
+         <span>
+          <p className="text-xs text-slate-500">Email</p>
+           <Input className="mb-1"
             value={form.email}
             onChange={(e) =>
               setForm({ ...form, email: e.target.value })
             }
           />
-
-          <Input
+         </span>
+         <span>
+          <p className="text-xs text-slate-500">Phone</p>
+           <Input className="mb-1"
             value={form.phone}
             onChange={(e) =>
               setForm({ ...form, phone: e.target.value })
             }
           />
-
-          <Input
+         </span>
+         <span>
+          <p className="text-xs text-slate-500">Address</p>
+           <Input className="mb-1"
             value={form.address}
             onChange={(e) =>
               setForm({ ...form, address: e.target.value })
             }
           />
-
-          <Input
+         </span>
+         <span>
+          <p className="text-xs text-slate-500">Role</p>
+           <select
+            required
+            id="gender"
+            className="w-full mb-1 text-sm p-1 border rounded-md text-slate-600"
             value={form.role}
-            onChange={(e) =>
-              setForm({ ...form, role: e.target.value })
-            }
-          />
+            onChange={(e) => setForm({ ...form, role: e.target.value })}
+          >
+            <option className="px-4 text-xs" value="">Please select role</option>
+            <option className="px-4 text-xs" value="male">Admin</option>
+            <option className="px-4 text-xs" value="male">Member</option>
+            <option className="px-4 text-xs" value="leader">Leader</option>
+            <option className="px-4 text-xs" value="female">Pastor</option>
+          </select>
+         </span>
+
 
           <Button onClick={updateMember}>
             Update Member

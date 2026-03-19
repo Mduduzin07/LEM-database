@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { toast } from "react-toastify";
 import { ArrowLeftIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import { RainbowButton } from "@/components/ui/rainbow-button";
-import { SpinningText } from "@/components/ui/spinning-text";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
+import { MorphingText } from "@/components/ui/morphing-text";
+import { Button } from "@/components/ui/button";
 
 interface MemberDetails {
   firstName: string;
@@ -36,7 +37,6 @@ export default function AddMemberForm() {
   const submit = async () => {
     const { firstName, lastName, phone, address, role, email } = form;
 
-    // Validate required details first
     if (!firstName || !lastName || !phone || !address || !role) {
       return toast.error("Required fields are missing");
     }
@@ -47,7 +47,6 @@ export default function AddMemberForm() {
       toast.error("Names must be at least 3 characters");
     }
 
-    // Email validation
     if (email && !email.includes("@")) {
       return toast.error("Please enter a valid email address");
     }
@@ -69,7 +68,6 @@ export default function AddMemberForm() {
 
       toast.success("Member added successfully");
 
-      // After the member has been added, clear form
       setForm({
         firstName: "",
         lastName: "",
@@ -80,10 +78,7 @@ export default function AddMemberForm() {
         role: "",
       });
 
-      // refresh dashboard
       router.refresh();
-
-      // redirect back
       router.push("/dashboard/members");
     } catch (error) {
       toast.error("Something went wrong");
@@ -91,97 +86,111 @@ export default function AddMemberForm() {
   };
 
   return (
-    <div className="flex justify-center">
-      <Card className="w-full mx-2 my-10 sm:w-2/5">
-        <CardTitle>
-          <a href="/dashboard/members">
-            <span className="w-40 ml-5 rounded-md flex items-center hover:bg-black hover:text-white">
-              <ArrowLeftIcon className="px-1" />
-              Back to members
-            </span>
-          </a>
+    <div className="min-h-screen flex flex-col items-center bg-linear-to-br from-slate-400 to-slate-100 px-4">
+      
+      <Card className="relative w-full max-w-sm mt-40 sm:mt-3 md:max-w-sm md:max-h-200 lg:max-w-sm max-h-135 shadow-xl border-0 bg-white/95">
+        <CardTitle className="">
+          <div>
+            <MorphingText
+          texts={["Liberation", "&", "Empowerment", "Ministries"]}
+          className="text-3xl lg:text-3xl xl:text-3xl font-bold text-center"
+        />
+        </div>
+          <div className="absolute top-17 left-5  sm:top-24 sm:left-4  text-slate-600">
+            <Button onClick={()=>redirect('/dashboard/members')} variant="outline" className="flex items-center cursor-pointer ">
+              <ArrowLeftIcon className="size-5"/>
+              back to members
+            </Button>
+          </div>
+    
         </CardTitle>
 
-        <CardContent>
-          <Input
-            required
-            id="firstName"
-            className="my-3"
-            placeholder="First name"
-            value={form.firstName}
-            onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-          />
+        <CardContent className="px-4 flex-1">
+          <div className="space-y-2">
+            <Input
+              required
+              placeholder="First name"
+              value={form.firstName}
+              onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+              className="h-9 text-sm lg:h-8 lg:text-xs"
+            />
 
-          <Input
-            required
-            id="lastName"
-            className="my-3"
-            placeholder="Last name"
-            value={form.lastName}
-            onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-          />
+            <Input
+              required
+              placeholder="Last name"
+              value={form.lastName}
+              onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+              className="h-9 text-sm lg:h-8 lg:text-xs"
+            />
 
-          <select
-            required
-            id="gender"
-            className="my-3 w-full border rounded-md p-2 text-slate-600"
-            value={form.gender}
-            onChange={(e) => setForm({ ...form, gender: e.target.value })}
-          >
-            <option value="">Please select gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
+            <select
+              className="w-full border rounded-md p-1.5 text-slate-600 bg-white h-9 text-sm"
+              value={form.gender}
+              onChange={(e) => setForm({ ...form, gender: e.target.value })}
+            >
+              <option value="">Select gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
 
-          <Input
-            id="email"
-            className="my-3"
-            placeholder="Email (optional)"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
+            <Input
+              placeholder="Email (optional)"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              className="h-9 text-sm lg:h-8 lg:text-xs"
+            />
 
-          <Input
-            required
-            className="my-3"
-            placeholder="Phone"
-            value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-          />
+            <Input
+              required
+              placeholder="Phone"
+              value={form.phone}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  phone: e.target.value.replace(/\D/g, ""),
+                })
+              }
+              className="h-9 text-sm lg:h-8 lg:text-xs"
+            />
 
-          <Textarea
-            required
-            id="address"
-            className="my-3 min-h-25"
-            placeholder="Enter the address"
-            value={form.address}
-            onChange={(e) => setForm({ ...form, address: e.target.value })}
-          />
+            <Textarea
+              required
+              rows={3}
+              className="max-h-16 lg:max-h-12 text-sm lg:text-xs"
+              placeholder="Enter the address"
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+            />
 
-          <select
-            required
-            id="role"
-            className="text-slate-600 my-3 w-full border rounded-md p-2"
-            value={form.role}
-            onChange={(e) => setForm({ ...form, role: e.target.value })}
-          >
-            <option value="">Please select Role</option>
-            <option value="admin">Admin</option>
-            <option value="member">Member</option>
-            <option value="pastor">Pastor</option>
-          </select>
-
-          <RainbowButton onClick={submit}>Add Member</RainbowButton>
+            <select
+              className="w-full border rounded-md p-1.5 text-slate-600 bg-white h-9 text-sm"
+              value={form.role}
+              onChange={(e) => setForm({ ...form, role: e.target.value })}
+            >
+              <option value="">Select Role</option>
+              <option value="admin">Admin</option>
+              <option value="member">Member</option>
+              <option value="leader">Leader</option>
+              <option value="pastor">Pastor</option>
+            </select>
+          </div>
         </CardContent>
+
+        <CardFooter className="p-4 pt-1">
+          <RainbowButton onClick={submit} className="w-full text-sm py-1.5">
+            Add Member
+          </RainbowButton>
+        </CardFooter>
       </Card>
 
-      <SpinningText
-        radius={6}
-        className="hidden w-1/3 text-2xl text-black animate-[spin_40s_linear_infinite] 
-        drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]"
-      >
-        Liberation • and • Empowerment • Ministries •
-      </SpinningText>
+      
+      <div className="lg:hidden mt-6 text-center">
+        <div className="inline-block bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
+          <p className="text-sm font-medium text-amber-700">
+            Liberation & Empowerment Ministries
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
