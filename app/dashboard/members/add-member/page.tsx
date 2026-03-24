@@ -10,6 +10,7 @@ import { RainbowButton } from "@/components/ui/rainbow-button";
 import { redirect, useRouter } from "next/navigation";
 import { MorphingText } from "@/components/ui/morphing-text";
 import { Button } from "@/components/ui/button";
+import { Luckiest_Guy } from "next/font/google";
 
 interface MemberDetails {
   firstName: string;
@@ -20,6 +21,11 @@ interface MemberDetails {
   phone: string;
   role: string;
 }
+
+const luckiest = Luckiest_Guy({
+  subsets: ["latin"],
+  weight: "400",
+});
 
 export default function AddMemberForm() {
   const router = useRouter();
@@ -93,7 +99,7 @@ export default function AddMemberForm() {
           <div>
             <MorphingText
           texts={["Liberation", "&", "Empowerment", "Ministries"]}
-          className="text-3xl lg:text-3xl xl:text-3xl font-bold text-center"
+          className={`${luckiest.className} text-3xl lg:text-3xl xl:text-3xl font-bold text-center`}
         />
         </div>
           <div className="absolute top-17 left-5  sm:top-24 sm:left-4  text-slate-600">

@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 
-const eventSchema = new mongoose.Schema(
+const gatheringSchema = new mongoose.Schema(
   {
     eventName: String,
     date: String,
     location: String,
     organiser: {
+      type:String,
       enum: [
         "Pastoral",
         "Youth",
@@ -15,18 +16,20 @@ const eventSchema = new mongoose.Schema(
         "Worship team",
         "Sunday school",
       ],
+      default:"Pastoral"
     },
     eventStatus: {
+      type:String,
       enum: [
-        "EventScheduled",
-        "EventCancelled",
-        "EventPostponed",
-        "EventRescheduled",
+        "scheduled",
+        "cancelled",
+        "postponed",
+        "rescheduled",
       ],
-      default: "EventScheduled",
+      default: "scheduled",
     },
   },
   { timestamps: true },
 );
 
-export default mongoose.models.Event || mongoose.model("Event", eventSchema);
+export default mongoose.models.Gathering || mongoose.model("Gathering", gatheringSchema);

@@ -15,9 +15,13 @@ import React, { useState } from "react";
 import SignOutButton from "./sign-out-btn";
 import { MenuIcon, SidebarClose } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { Luckiest_Guy } from "next/font/google";
  
 
-
+const luckiest = Luckiest_Guy({
+  subsets: ["latin"],
+  weight: "400",
+});
 
 export default function Navbar() {
   const { data: session, isPending } = useSession();
@@ -65,7 +69,7 @@ const linkClass = (path: string) =>
           />
         </Link>
 
-        <p className="hidden text-sm sm:flex sm:text-base font-bold text-black">
+        <p className={`${luckiest.className} hidden text-sm sm:flex sm:text-base font-bold text-black`}>
           LEM ministries
         </p>
       </div>
@@ -74,7 +78,7 @@ const linkClass = (path: string) =>
       <div className={`fixed top-0 left-0 h-screen w-60 bg-linear-to-tl from-black via-amber-700/90 to-black text-white p-6 transform transition-transform duration-300
         ${showSidebar ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex items-center justify-between mb-3">
-        <p className="font-bold">LEM Ministries</p>
+        <p className={`${luckiest.className} font-bold`}>LEM Ministries</p>
 
         <SidebarClose
           className="cursor-pointer"

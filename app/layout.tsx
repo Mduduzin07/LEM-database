@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import {  Outfit } from "next/font/google";
 import "./globals.css";
 import { ToastContainer } from 'react-toastify';
 import Navbar from "./components/Navbar";
@@ -10,6 +10,8 @@ const outfit = Outfit({
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-outfit",
 });
+
+
 
 export const metadata: Metadata = {
   title: "LEM Db",
