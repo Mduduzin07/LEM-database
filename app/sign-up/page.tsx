@@ -11,15 +11,16 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { WarpBackground } from "@/components/ui/warp-background";
 import { signUp } from "@/lib/auth/auth-client";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, User2Icon } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import { ShineBorder } from "@/components/ui/shine-border";
+import { Input } from "@/components/ui/input";
+import toast from "react-hot-toast";
 
-export default function SignIn() {
+export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,23 +30,18 @@ export default function SignIn() {
 
   function validateEmail(email: string) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
     if (!emailRegex.test(email)) {
       return "Please enter a valid email address";
     }
-
     return null;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
     setError("");
     setLoading(true);
 
-    // Email validation
     const emailError = validateEmail(email);
-
     if (emailError) {
       setError(emailError);
       setLoading(false);
@@ -60,60 +56,48 @@ export default function SignIn() {
       });
 
       if (result.error) {
-        setError(result.error.message ?? "Failed to sign in");
+        setError(result.error.message ?? "Failed to sign up");
+        toast.error(result.error.message ?? "Failed to sign up");
       } else {
+        toast.success("Account created successfully!");
         router.push("/dashboard");
-      }
-      if (result) {
-        toast.success("Account created successfully");
       }
     } catch (err) {
       setError("An unexpected error occurred");
+      toast.error("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    // Preload the dashboard route
     router.prefetch("/dashboard");
   }, [router]);
-const theme = useTheme()
+
+  const theme = useTheme();
   return (
     <WarpBackground className="flex items-center justify-center min-h-screen px-3 sm:px-4 py-6 sm:py-10">
-      {error && (
-        <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
-          {error}
-        </div>
-      )}
       <Card className="w-full max-w-md sm:max-w-lg shadow-2xl border-white/10 backdrop-blur-xl bg-white/95">
         <ShineBorder shineColor={theme.theme === "dark" ? "white" : "black"} />
         <CardHeader className="space-y-2 sm:space-y-3 px-4 sm:px-6">
-          <CardTitle className="text-lg sm:text-2xl md:text-3xl font-bold text-center">
+          <CardTitle className="text-lg sm:text-2xl md:text-2xl font-bold text-center">
             Sign Up
           </CardTitle>
-
           <p className="text-center text-muted-foreground text-xs sm:text-sm">
-            Create an account to manage church data
+            Create an account to get started
           </p>
         </CardHeader>
 
         <CardContent className="flex justify-center px-4 sm:px-6">
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-5 sm:space-y-2 w-full"
-          >
-            {/* Name */}
+          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-4 w-full">
             <div className="space-y-1 sm:space-y-2">
               <label className="text-xs sm:text-sm font-medium">Name</label>
-
               <div className="relative">
-                <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
-
-                <input
+                <User2Icon className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  type="name"
+                  type="text"
                   placeholder="Enter your name"
                   required
                   className="w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 text-sm sm:text-base
@@ -124,14 +108,11 @@ const theme = useTheme()
               </div>
             </div>
 
-            {/* Email */}
             <div className="space-y-1 sm:space-y-2">
               <label className="text-xs sm:text-sm font-medium">Email</label>
-
               <div className="relative">
                 <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
-
-                <input
+                <Input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   type="email"
@@ -145,14 +126,11 @@ const theme = useTheme()
               </div>
             </div>
 
-            {/* Password */}
             <div className="space-y-1 sm:space-y-2">
               <label className="text-xs sm:text-sm font-medium">Password</label>
-
               <div className="relative">
                 <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
-
-                <input
+                <Input
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   type="password"
@@ -167,9 +145,15 @@ const theme = useTheme()
               </div>
             </div>
 
+            {error && (
+              <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+                {error}
+              </div>
+            )}
+
             <Button
-              className="w-full py-4 sm:py-6 text-sm sm:text-lg
-              bg-gradient-to-r from-black to-amber-600
+              className="w-full mt-2 text-sm sm:text-sm cursor-pointer
+              bg-linear-to-r from-black to-amber-600
               hover:opacity-90 transition-all
               shadow-lg hover:shadow-xl rounded-lg sm:rounded-xl"
             >

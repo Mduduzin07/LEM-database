@@ -99,7 +99,7 @@ function getMemberGrowthData(members: any[]) {
   }));
 }
 
-// 🚀 MAIN PAGE
+// MAIN PAGE
 export default async function DashboardPage() {
   await connectDB();
 

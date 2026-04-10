@@ -8,16 +8,12 @@ if (!MONGODB_URI) {
   )
 }
 
-/*
-Global is used here to maintain a cached connection
-across hot reloads in development.
-*/
-
 interface MongooseCache {
   conn: typeof mongoose | null
   promise: Promise<typeof mongoose> | null
 }
 
+// Use global for caching across hot reloads in development
 // @ts-ignore
 let cached: MongooseCache = global.mongoose
 
@@ -27,18 +23,30 @@ if (!cached) {
 }
 
 export default async function connectDB(): Promise<typeof mongoose> {
-
   if (cached.conn) {
     return cached.conn
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, {
+    const opts = {
       bufferCommands: false,
+      maxPoolSize: 1, 
+      minPoolSize: 1,
+      socketTimeoutMS: 30000,
+      connectTimeoutMS: 30000,
+    }
+
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      return mongoose
     })
   }
 
-  cached.conn = await cached.promise
+  try {
+    cached.conn = await cached.promise
+  } catch (e) {
+    cached.promise = null
+    throw e
+  }
 
   return cached.conn
 }

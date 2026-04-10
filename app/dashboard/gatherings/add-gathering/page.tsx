@@ -19,6 +19,7 @@ const luckiest = Luckiest_Guy({
 interface GatheringDetails {
   eventName: string;
   date: string;
+  time: string;
   organiser: string;
   eventStatus: string;
   location: string;
@@ -30,60 +31,64 @@ export default function AddMemberForm() {
   const [form, setForm] = useState<GatheringDetails>({
     eventName: "",
     date: "",
+    time: "",
     organiser: "",
     eventStatus: "",
     location: "",
   });
 
-  
-    const submit = async () => {
-       const { eventName,date,organiser,eventStatus,location } = form;
-   
-       if (!eventName||!date||!organiser||!eventStatus||!location) {
-         return toast.error("Required fields are missing");
-       }
-   
-       if (eventName.length <5) {
-         return toast.error("Event name must be at least 5 characters");
-       } else if (location.length < 5) {
-         toast.error("Location must be at least 5 characters");
-       }
-   
-      
-   
-       try {
-         const res = await fetch("/api/gatherings", {
-           method: "POST",
-           headers: {
-             "Content-Type": "application/json",
-           },
-           body: JSON.stringify(form),
-         });
-   
-         if (!res.ok) {
-           const data = await res.json();
-           toast.error(data.error);
-           return;
-         }
-   
-         toast.success("Event added successfully");
-   
-         setForm({
-           eventName: "",
-           date: "",
-           location: "",
-           organiser: "",
-           eventStatus: "",
-           
-         });
-   
-         router.refresh();
-         router.push("/dashboard/gatherings");
-       } catch (error) {
-         toast.error("Something went wrong");
-       }
-     };
-  
+  const submit = async () => {
+    const { eventName, date, time, organiser, eventStatus, location } = form;
+
+    if (
+      !eventName ||
+      !date ||
+      !time ||
+      !organiser ||
+      !eventStatus ||
+      !location
+    ) {
+      return toast.error("Required fields are missing");
+    }
+
+    if (eventName.length < 5) {
+      return toast.error("Event name must be at least 5 characters");
+    } else if (location.length < 5) {
+      toast.error("Location must be at least 5 characters");
+    }
+
+    try {
+      const res = await fetch("/api/gatherings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        toast.error(data.error);
+        return;
+      }
+
+      toast.success("Event added successfully");
+
+      setForm({
+        eventName: "",
+        date: "",
+        time: "",
+        location: "",
+        organiser: "",
+        eventStatus: "",
+      });
+
+      router.refresh();
+      router.push("/dashboard/gatherings");
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-linear-to-br from-slate-400 to-slate-100 px-4">
@@ -125,6 +130,14 @@ export default function AddMemberForm() {
               onChange={(e) => setForm({ ...form, date: e.target.value })}
               className="text-gray-500 h-9 text-sm lg:h-8 lg:text-xs"
             />
+            <Input
+              required
+              type="time"
+              placeholder="Event time"
+              value={form.time}
+              onChange={(e) => setForm({ ...form, time: e.target.value })}
+              className="text-gray-500 h-9 text-sm lg:h-8 lg:text-xs"
+            />
 
             <Input
               required
@@ -141,19 +154,21 @@ export default function AddMemberForm() {
               onChange={(e) => setForm({ ...form, organiser: e.target.value })}
             >
               <option value="">Select organiser</option>
-              <option value="pastoral">Pastoral</option>
+              <option value="Pastoral">Pastoral</option>
               <option value="Men's ministry">Men's ministry</option>
               <option value="Women's ministry">Women's ministry</option>
               <option value="Worship team">Worship team</option>
               <option value="Media team">Media team</option>
               <option value="Sunday school">Sunday school</option>
-              <option value="youth">Youth</option>
+              <option value="Youth">Youth</option>
             </select>
 
             <select
               className="text-gray-500 w-full border rounded-md p-2 text-sm md:text-sm text-slate-600"
               value={form.eventStatus}
-              onChange={(e) => setForm({ ...form, eventStatus: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, eventStatus: e.target.value })
+              }
             >
               <option value="">Select event status</option>
               <option value="scheduled">Event scheduled</option>
@@ -166,7 +181,7 @@ export default function AddMemberForm() {
 
         <CardFooter className="p-4 pt-1">
           <RainbowButton onClick={submit} className="w-full text-sm py-1.5">
-            Add Event
+            Create Event
           </RainbowButton>
         </CardFooter>
       </Card>

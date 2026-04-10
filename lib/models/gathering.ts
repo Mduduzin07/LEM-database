@@ -1,12 +1,27 @@
+
 import mongoose from "mongoose";
 
 const gatheringSchema = new mongoose.Schema(
   {
-    eventName: String,
-    date: String,
-    location: String,
+    eventName: {
+      type: String,
+      required: true,
+    },
+    date: {
+      type: String,
+      required: true,
+    },
+    time: {
+      type: String,
+      required: true,
+    },
+    location: {
+      type: String,
+      required: true,
+    },
     organiser: {
-      type:String,
+      type: String,
+      required: true,
       enum: [
         "Pastoral",
         "Youth",
@@ -16,20 +31,36 @@ const gatheringSchema = new mongoose.Schema(
         "Worship team",
         "Sunday school",
       ],
-      default:"Pastoral"
+      default: "Pastoral",
     },
     eventStatus: {
-      type:String,
-      enum: [
-        "scheduled",
-        "cancelled",
-        "postponed",
-        "rescheduled",
-      ],
+      type: String,
+      required: true,
+      enum: ["scheduled", "cancelled", "postponed", "rescheduled"],
       default: "scheduled",
     },
   },
-  { timestamps: true },
+  { 
+    timestamps: true,
+    // Add a virtual field for the combined datetime
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+  },
 );
 
-export default mongoose.models.Gathering || mongoose.model("Gathering", gatheringSchema);
+// Virtual field that combines date and time
+gatheringSchema.virtual('dateTime').get(function() {
+  if (this.date && this.time) {
+    return new Date(`${this.date}T${this.time}:00`);
+  }
+  return null;
+});
+
+// Method to check if event is upcoming
+gatheringSchema.methods.isUpcoming = function() {
+  const eventDateTime = new Date(`${this.date}T${this.time}:00`);
+  return eventDateTime > new Date();
+};
+
+export default mongoose.models.Gathering ||
+  mongoose.model("Gathering", gatheringSchema);
