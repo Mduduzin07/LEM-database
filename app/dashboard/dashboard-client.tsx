@@ -53,7 +53,7 @@ import {
 
 const WarpBackground = dynamic(
   () => import("@/components/ui/warp-background").then((m) => m.WarpBackground),
-  { ssr: false }
+  { ssr: false },
 );
 
 type Props = {
@@ -117,45 +117,57 @@ export default function DashboardClient({
       setOfferingsLoading(true);
       const response = await fetch("/api/offerings");
       const data = await response.json();
-      
+
       if (data.success) {
         setOfferings(data.data);
-        
+
         // Calculate total stats
-        const total = data.data.reduce((sum: number, o: OfferingData) => sum + o.amount, 0);
+        const total = data.data.reduce(
+          (sum: number, o: OfferingData) => sum + o.amount,
+          0,
+        );
         const byType: Record<string, number> = {};
         const currentDate = new Date();
         let thisMonthTotal = 0;
-        
+
         // Calculate monthly data dynamically
         const monthlyMap = new Map();
-        
+
         data.data.forEach((offering: OfferingData) => {
           // By type
-          byType[offering.type] = (byType[offering.type] || 0) + offering.amount;
-          
+          byType[offering.type] =
+            (byType[offering.type] || 0) + offering.amount;
+
           // This month
           const offeringDate = new Date(offering.date);
-          if (offeringDate.getMonth() === currentDate.getMonth() && 
-              offeringDate.getFullYear() === currentDate.getFullYear()) {
+          if (
+            offeringDate.getMonth() === currentDate.getMonth() &&
+            offeringDate.getFullYear() === currentDate.getFullYear()
+          ) {
             thisMonthTotal += offering.amount;
           }
-          
+
           // Dynamic monthly data
           const monthKey = `${offeringDate.getFullYear()}-${offeringDate.getMonth()}`;
-          const monthName = offeringDate.toLocaleString('default', { month: 'short' });
-          const existing = monthlyMap.get(monthKey) || { month: monthName, amount: 0, fullDate: offeringDate };
+          const monthName = offeringDate.toLocaleString("default", {
+            month: "short",
+          });
+          const existing = monthlyMap.get(monthKey) || {
+            month: monthName,
+            amount: 0,
+            fullDate: offeringDate,
+          };
           existing.amount += offering.amount;
           monthlyMap.set(monthKey, existing);
         });
-        
+
         // Convert to array and sort by date
         const monthlyData = Array.from(monthlyMap.values())
           .sort((a, b) => a.fullDate - b.fullDate)
           .slice(-6);
-          
+
         setMonthlyOfferingData(monthlyData);
-        
+
         setOfferingStats({
           total,
           byType,
@@ -176,16 +188,18 @@ export default function DashboardClient({
   }, []);
 
   // Prepare chart data
-  const pieChartData = Object.entries(offeringStats.byType).map(([name, value]) => ({
-    name: name.charAt(0).toUpperCase() + name.slice(1),
-    value,
-    type: name,
-  }));
+  const pieChartData = Object.entries(offeringStats.byType).map(
+    ([name, value]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value,
+      type: name,
+    }),
+  );
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-ZA', {
-      style: 'currency',
-      currency: 'ZAR',
+    return new Intl.NumberFormat("en-ZA", {
+      style: "currency",
+      currency: "ZAR",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
@@ -232,7 +246,11 @@ export default function DashboardClient({
           </SidebarContent>
           <SidebarFooter className="pb-15">
             <div className="px-4">
-              <img className="w-24 rounded-full mx-auto" src="/logo.jpeg" alt="Church Logo" />
+              <img
+                className="w-24 rounded-full mx-auto"
+                src="/logo.jpeg"
+                alt="Church Logo"
+              />
             </div>
           </SidebarFooter>
         </Sidebar>
@@ -249,8 +267,14 @@ export default function DashboardClient({
 
         {/* Mobile Sidebar */}
         {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-40 bg-black/50" onClick={() => setMobileMenuOpen(false)}>
-            <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-xl z-50" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="lg:hidden fixed inset-0 z-40 bg-black/50"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <div
+              className="fixed left-0 top-0 h-full w-64 bg-white shadow-xl z-50"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="p-6">
                 <h2 className="text-xl font-bold mb-6">Church Admin</h2>
                 <div className="space-y-2">
@@ -277,7 +301,11 @@ export default function DashboardClient({
                   })}
                 </div>
                 <div className="mt-8 pt-8 border-t">
-                  <img className="w-20 rounded-full mx-auto" src="/logo.jpeg" alt="Church Logo" />
+                  <img
+                    className="w-20 rounded-full mx-auto"
+                    src="/logo.jpeg"
+                    alt="Church Logo"
+                  />
                 </div>
               </div>
             </div>
@@ -369,7 +397,9 @@ export default function DashboardClient({
               {/* Member Growth Chart */}
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl">Member Growth Trend</CardTitle>
+                  <CardTitle className="text-lg sm:text-xl">
+                    Member Growth Trend
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="h-64 sm:h-72 lg:h-80">
                   <ResponsiveContainer width="100%" height="100%">
@@ -392,7 +422,9 @@ export default function DashboardClient({
               {/* Monthly Offering Trend */}
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl">Monthly Offering Trend</CardTitle>
+                  <CardTitle className="text-lg sm:text-xl">
+                    Monthly Offering Trend
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="h-64 sm:h-72 lg:h-80">
                   {monthlyOfferingData.length > 0 ? (
@@ -400,14 +432,23 @@ export default function DashboardClient({
                       <BarChart data={monthlyOfferingData}>
                         <XAxis dataKey="month" fontSize={12} />
                         <YAxis fontSize={12} />
-                        <Tooltip formatter={(value) => formatCurrency(value as number)} />
-                        <Bar dataKey="amount" fill="#10b981" name="Offerings" radius={[8, 8, 0, 0]} />
+                        <Tooltip
+                          formatter={(value) => formatCurrency(value as number)}
+                        />
+                        <Bar
+                          dataKey="amount"
+                          fill="#10b981"
+                          name="Offerings"
+                          radius={[8, 8, 0, 0]}
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   ) : (
                     <div className="flex items-center justify-center h-full">
                       <p className="text-muted-foreground text-sm">
-                        {offeringsLoading ? "Loading..." : "No offering data available"}
+                        {offeringsLoading
+                          ? "Loading..."
+                          : "No offering data available"}
                       </p>
                     </div>
                   )}
@@ -420,7 +461,9 @@ export default function DashboardClient({
               {/* Pie Chart */}
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl">Offering Distribution</CardTitle>
+                  <CardTitle className="text-lg sm:text-xl">
+                    Offering Distribution
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="h-64 sm:h-72 lg:h-80">
                   {pieChartData.length > 0 ? (
@@ -431,22 +474,36 @@ export default function DashboardClient({
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                          label={({ percent }) => {
+                            const safePercent =
+                              typeof percent === "number" ? percent : 0;
+                            return `${(safePercent * 100).toFixed(0)}%`;
+                          }}
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="value"
                         >
                           {pieChartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[entry.type as keyof typeof COLORS] || "#8884d8"} />
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={
+                                COLORS[entry.type as keyof typeof COLORS] ||
+                                "#8884d8"
+                              }
+                            />
                           ))}
                         </Pie>
-                        <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                        <Tooltip
+                          formatter={(value) => formatCurrency(value as number)}
+                        />
                       </PieChart>
                     </ResponsiveContainer>
                   ) : (
                     <div className="flex items-center justify-center h-full">
                       <p className="text-muted-foreground text-sm">
-                        {offeringsLoading ? "Loading..." : "No offering data available"}
+                        {offeringsLoading
+                          ? "Loading..."
+                          : "No offering data available"}
                       </p>
                     </div>
                   )}
@@ -456,45 +513,62 @@ export default function DashboardClient({
               {/* Type Breakdown */}
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl">Breakdown by Type</CardTitle>
+                  <CardTitle className="text-lg sm:text-xl">
+                    Breakdown by Type
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="max-h-80 overflow-y-auto">
                   <div className="space-y-4">
-                    {Object.entries(offeringStats.byType).map(([type, amount]) => {
-                      const percentage = offeringStats.total > 0 
-                        ? (amount / offeringStats.total) * 100 
-                        : 0;
-                      const Icon = getIconForType(type);
-                      const color = getColorForType(type);
-                      
-                      return (
-                        <div key={type} className="space-y-2">
-                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-                            <div className="flex items-center gap-2">
-                              <div className={`p-1.5 rounded-lg bg-${color}-100`}>
-                                <Icon className={`h-4 w-4 text-${color}-600`} />
+                    {Object.entries(offeringStats.byType).map(
+                      ([type, amount]) => {
+                        const percentage =
+                          offeringStats.total > 0
+                            ? (amount / offeringStats.total) * 100
+                            : 0;
+                        const Icon = getIconForType(type);
+                        const color = getColorForType(type);
+
+                        return (
+                          <div key={type} className="space-y-2">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className={`p-1.5 rounded-lg bg-${color}-100`}
+                                >
+                                  <Icon
+                                    className={`h-4 w-4 text-${color}-600`}
+                                  />
+                                </div>
+                                <span className="font-medium capitalize text-sm sm:text-base">
+                                  {type}
+                                </span>
                               </div>
-                              <span className="font-medium capitalize text-sm sm:text-base">{type}</span>
+                              <div className="text-left sm:text-right">
+                                <p className="font-bold text-sm sm:text-base">
+                                  {formatCurrency(amount)}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {percentage.toFixed(1)}%
+                                </p>
+                              </div>
                             </div>
-                            <div className="text-left sm:text-right">
-                              <p className="font-bold text-sm sm:text-base">{formatCurrency(amount)}</p>
-                              <p className="text-xs text-muted-foreground">{percentage.toFixed(1)}%</p>
+                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all duration-500 bg-${color}-500`}
+                                style={{ width: `${percentage}%` }}
+                              />
                             </div>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all duration-500 bg-${color}-500`}
-                              style={{ width: `${percentage}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                    
+                        );
+                      },
+                    )}
+
                     {Object.keys(offeringStats.byType).length === 0 && (
                       <div className="text-center py-8">
                         <p className="text-muted-foreground text-sm">
-                          {offeringsLoading ? "Loading..." : "No offering data yet"}
+                          {offeringsLoading
+                            ? "Loading..."
+                            : "No offering data yet"}
                         </p>
                       </div>
                     )}
@@ -508,7 +582,9 @@ export default function DashboardClient({
               {/* Recent Gatherings */}
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl">Upcoming Gatherings</CardTitle>
+                  <CardTitle className="text-lg sm:text-xl">
+                    Upcoming Gatherings
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 max-h-96 overflow-y-auto">
                   {gatherings.slice(0, 5).map((g) => (
@@ -518,7 +594,9 @@ export default function DashboardClient({
                       onClick={() => router.push("/dashboard/gatherings")}
                     >
                       <div>
-                        <p className="font-medium text-sm sm:text-base">{g.eventName}</p>
+                        <p className="font-medium text-sm sm:text-base">
+                          {g.eventName}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(g.date).toLocaleDateString()} • {g.location}
                         </p>
@@ -528,10 +606,12 @@ export default function DashboardClient({
                       </span>
                     </div>
                   ))}
-                  
+
                   {gatherings.length === 0 && (
                     <div className="text-center py-8">
-                      <p className="text-muted-foreground text-sm">No upcoming gatherings</p>
+                      <p className="text-muted-foreground text-sm">
+                        No upcoming gatherings
+                      </p>
                     </div>
                   )}
                 </CardContent>
@@ -540,7 +620,9 @@ export default function DashboardClient({
               {/* Recent Offerings */}
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl">Recent Offerings</CardTitle>
+                  <CardTitle className="text-lg sm:text-xl">
+                    Recent Offerings
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 max-h-96 overflow-y-auto">
                   {offerings.slice(0, 5).map((offering) => (
@@ -554,21 +636,27 @@ export default function DashboardClient({
                           {formatCurrency(offering.amount)}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(offering.date).toLocaleDateString()} • 
-                          <span className="capitalize ml-1">{offering.type}</span>
+                          {new Date(offering.date).toLocaleDateString()} •
+                          <span className="capitalize ml-1">
+                            {offering.type}
+                          </span>
                           {offering.memberName && ` • ${offering.memberName}`}
                         </p>
                       </div>
-                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium capitalize ${getTypeBadgeColor(offering.type)} self-start sm:self-center`}>
+                      <span
+                        className={`inline-block px-2 py-1 rounded-full text-xs font-medium capitalize ${getTypeBadgeColor(offering.type)} self-start sm:self-center`}
+                      >
                         {offering.type}
                       </span>
                     </div>
                   ))}
-                  
+
                   {offerings.length === 0 && (
                     <div className="text-center py-8">
                       <p className="text-muted-foreground text-sm">
-                        {offeringsLoading ? "Loading..." : "No offerings recorded yet"}
+                        {offeringsLoading
+                          ? "Loading..."
+                          : "No offerings recorded yet"}
                       </p>
                     </div>
                   )}
@@ -631,8 +719,8 @@ function StatCard({
   onClick?: () => void;
 }) {
   return (
-    <Card 
-      onClick={onClick} 
+    <Card
+      onClick={onClick}
       className="cursor-pointer hover:shadow-lg transition-all hover:scale-105 border-l-4 border-amber-500"
     >
       <CardContent className="p-4 sm:p-6">

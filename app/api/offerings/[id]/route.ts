@@ -1,18 +1,19 @@
 import connectDB from "@/lib/db";
 import Offering from "@/lib/models/offerings";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-// DELETE offering by ID
+// DELETE
 export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params; 
-    
     await connectDB();
+
+    const { id } = await context.params;
+
     await Offering.findByIdAndDelete(id);
-    
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting offering:", error);
@@ -23,27 +24,28 @@ export async function DELETE(
   }
 }
 
-// GET single offering by ID (optional)
+// GET
 export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params; 
-    
     await connectDB();
+
+    const { id } = await context.params;
+
     const offering = await Offering.findById(id).lean();
-    
+
     if (!offering) {
       return NextResponse.json(
         { success: false, error: "Offering not found" },
         { status: 404 }
       );
     }
-    
-    return NextResponse.json({ 
-      success: true, 
-      data: { ...offering, _id: offering._id.toString() } 
+
+    return NextResponse.json({
+      success: true,
+      data: { ...offering, _id: offering._id.toString() },
     });
   } catch (error) {
     console.error("Error fetching offering:", error);
@@ -54,33 +56,34 @@ export async function GET(
   }
 }
 
-// PUT update offering by ID
+// PUT
 export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params; 
-    const body = await request.json();
-    
     await connectDB();
-    
+
+    const { id } = await context.params;
+
+    const body = await req.json();
+
     const updatedOffering = await Offering.findByIdAndUpdate(
       id,
       body,
       { new: true, runValidators: true }
     ).lean();
-    
+
     if (!updatedOffering) {
       return NextResponse.json(
         { success: false, error: "Offering not found" },
         { status: 404 }
       );
     }
-    
-    return NextResponse.json({ 
-      success: true, 
-      data: { ...updatedOffering, _id: updatedOffering._id.toString() } 
+
+    return NextResponse.json({
+      success: true,
+      data: { ...updatedOffering, _id: updatedOffering._id.toString() },
     });
   } catch (error) {
     console.error("Error updating offering:", error);

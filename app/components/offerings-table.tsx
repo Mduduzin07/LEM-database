@@ -18,7 +18,11 @@ interface OfferingsTableProps {
   onDelete: (id: string) => void;
 }
 
-export default function OfferingsTable({ data, onEdit, onDelete }: OfferingsTableProps) {
+export default function OfferingsTable({
+  data,
+  onEdit,
+  onDelete,
+}: OfferingsTableProps) {
   const [sortField, setSortField] = useState<keyof Offering>("date");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [searchTerm, setSearchTerm] = useState("");
@@ -32,33 +36,39 @@ export default function OfferingsTable({ data, onEdit, onDelete }: OfferingsTabl
     }
   };
 
-  const filteredData = data.filter(offering =>
-    offering.memberName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    offering.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    offering.note?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredData = data.filter(
+    (offering) =>
+      offering.memberName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      offering.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      offering.note?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const sortedData = [...filteredData].sort((a, b) => {
     let aVal = a[sortField];
     let bVal = b[sortField];
-    
+
     if (sortField === "amount") {
-      return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
+      if (sortField === "amount") {
+        const numA = Number(aVal ?? 0);
+        const numB = Number(bVal ?? 0);
+
+        return sortDirection === "asc" ? numA - numB : numB - numA;
+      }
     }
-    
+
     if (typeof aVal === "string" && typeof bVal === "string") {
-      return sortDirection === "asc" 
-        ? aVal.localeCompare(bVal) 
+      return sortDirection === "asc"
+        ? aVal.localeCompare(bVal)
         : bVal.localeCompare(aVal);
     }
-    
+
     return 0;
   });
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-ZA', {
-      style: 'currency',
-      currency: 'ZAR',
+    return new Intl.NumberFormat("en-ZA", {
+      style: "currency",
+      currency: "ZAR",
     }).format(amount);
   };
 
@@ -73,7 +83,9 @@ export default function OfferingsTable({ data, onEdit, onDelete }: OfferingsTabl
           onChange={(e) => setSearchTerm(e.target.value)}
           className="flex-1 max-w-md border rounded-lg p-2 focus:ring-2 focus:ring-blue-500"
         />
-        <p className="text-sm text-gray-600">{sortedData.length} transactions</p>
+        <p className="text-sm text-gray-600">
+          {sortedData.length} transactions
+        </p>
       </div>
 
       {/* Table - Desktop View */}
@@ -81,27 +93,57 @@ export default function OfferingsTable({ data, onEdit, onDelete }: OfferingsTabl
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onClick={() => handleSort("date")}>
+              <th
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSort("date")}
+              >
                 <div className="flex items-center gap-1">
                   Date
-                  {sortField === "date" && (sortDirection === "asc" ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+                  {sortField === "date" &&
+                    (sortDirection === "asc" ? (
+                      <ChevronUp size={14} />
+                    ) : (
+                      <ChevronDown size={14} />
+                    ))}
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onClick={() => handleSort("amount")}>
+              <th
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSort("amount")}
+              >
                 <div className="flex items-center gap-1">
                   Amount
-                  {sortField === "amount" && (sortDirection === "asc" ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+                  {sortField === "amount" &&
+                    (sortDirection === "asc" ? (
+                      <ChevronUp size={14} />
+                    ) : (
+                      <ChevronDown size={14} />
+                    ))}
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onClick={() => handleSort("type")}>
+              <th
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSort("type")}
+              >
                 <div className="flex items-center gap-1">
                   Type
-                  {sortField === "type" && (sortDirection === "asc" ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+                  {sortField === "type" &&
+                    (sortDirection === "asc" ? (
+                      <ChevronUp size={14} />
+                    ) : (
+                      <ChevronDown size={14} />
+                    ))}
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Note</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Member
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Note
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -114,19 +156,25 @@ export default function OfferingsTable({ data, onEdit, onDelete }: OfferingsTabl
                   {formatCurrency(offering.amount)}
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`px-2 py-1 text-xs rounded-full capitalize ${
-                    offering.type === 'tithe' ? 'bg-purple-100 text-purple-700' :
-                    offering.type === 'offering' ? 'bg-pink-100 text-pink-700' :
-                    offering.type === 'seed' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
-                  }`}>
+                  <span
+                    className={`px-2 py-1 text-xs rounded-full capitalize ${
+                      offering.type === "tithe"
+                        ? "bg-purple-100 text-purple-700"
+                        : offering.type === "offering"
+                          ? "bg-pink-100 text-pink-700"
+                          : offering.type === "seed"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-orange-100 text-orange-700"
+                    }`}
+                  >
                     {offering.type}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">
-                  {offering.memberName || '-'}
+                  {offering.memberName || "-"}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
-                  {offering.note || '-'}
+                  {offering.note || "-"}
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex gap-2">
@@ -156,20 +204,34 @@ export default function OfferingsTable({ data, onEdit, onDelete }: OfferingsTabl
           <div key={offering._id} className="bg-white rounded-lg shadow p-4">
             <div className="flex justify-between items-start mb-2">
               <div>
-                <p className="text-lg font-bold">{formatCurrency(offering.amount)}</p>
-                <span className={`px-2 py-1 text-xs rounded-full capitalize inline-block mt-1 ${
-                  offering.type === 'tithe' ? 'bg-purple-100 text-purple-700' :
-                  offering.type === 'offering' ? 'bg-pink-100 text-pink-700' :
-                  offering.type === 'seed' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
-                }`}>
+                <p className="text-lg font-bold">
+                  {formatCurrency(offering.amount)}
+                </p>
+                <span
+                  className={`px-2 py-1 text-xs rounded-full capitalize inline-block mt-1 ${
+                    offering.type === "tithe"
+                      ? "bg-purple-100 text-purple-700"
+                      : offering.type === "offering"
+                        ? "bg-pink-100 text-pink-700"
+                        : offering.type === "seed"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-orange-100 text-orange-700"
+                  }`}
+                >
                   {offering.type}
                 </span>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => onEdit(offering)} className="text-blue-600">
+                <button
+                  onClick={() => onEdit(offering)}
+                  className="text-blue-600"
+                >
                   <Edit size={16} />
                 </button>
-                <button onClick={() => onDelete(offering._id)} className="text-red-600">
+                <button
+                  onClick={() => onDelete(offering._id)}
+                  className="text-red-600"
+                >
                   <Trash2 size={16} />
                 </button>
               </div>

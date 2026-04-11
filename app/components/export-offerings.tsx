@@ -1,7 +1,7 @@
 "use client";
 
 import { Download } from "lucide-react";
-import { Offering } from "@/app/hooks/useOffering";
+import { Offering } from "@/app/hooks/useOfferings";
 
 interface ExportOfferingsProps {
   offerings: Offering[];

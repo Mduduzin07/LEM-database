@@ -1,60 +1,46 @@
-import { NextResponse } from "next/server"
-import connectDB from "@/lib/db"
-import Gathering from "@/lib/models/gathering"
+import { NextRequest, NextResponse } from "next/server";
+import connectDB from "@/lib/db";
+import Gathering from "@/lib/models/gathering";
 
 export async function PUT(
-  req: Request,
+  req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-
-  const { id } = await context.params  
-
   try {
+    await connectDB();
 
-    await connectDB()
+    const { id } = await context.params; 
 
-    const body = await req.json()
+    const body = await req.json();
 
-    const updatedGathering = await Gathering.findByIdAndUpdate(
+    const updated = await Gathering.findByIdAndUpdate(
       id,
-      body,
       {
-        returnDocument: "after", 
-        runValidators: true
-      }
-    )
+        ...body,
+        date: new Date(body.date),
+      },
+      { new: true }
+    );
 
-    if (!updatedGathering) {
-      return NextResponse.json(
-        { error: "Event not found" },
-        { status: 404 }
-      )
-    }
-
-    return NextResponse.json(updatedGathering)
-
+    return NextResponse.json(updated);
   } catch (error) {
-
-    console.error("UPDATE Event ERROR:", error)
-
+    console.log(error);
     return NextResponse.json(
-      { error: "Server error" },
+      { error: "Failed to update gathering" },
       { status: 500 }
-    )
+    );
   }
 }
 
-
 export async function DELETE(
-  req: Request,
+  req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  await connectDB();
 
-  const { id } = await context.params
+  const { id } = await context.params;
 
-  await connectDB()
+  await Gathering.findByIdAndDelete(id);
 
-  await Gathering.findByIdAndDelete(id)
-
-  return NextResponse.json({ message: "Event deleted" })
+  return NextResponse.json({ success: true });
 }
