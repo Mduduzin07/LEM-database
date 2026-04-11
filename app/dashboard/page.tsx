@@ -103,7 +103,7 @@ function getMemberGrowthData(members: any[]) {
 export default async function DashboardPage() {
   await connectDB();
 
-  // Clean parallel fetching (NO inline awaits)
+  
   const [memberStats, gatherings, members] = await Promise.all([
     getMemberStats(),
     getGatherings(),

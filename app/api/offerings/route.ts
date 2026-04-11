@@ -44,7 +44,7 @@ export async function GET(request: Request) {
   }
 }
 
-// Create offering
+// POST create offering
 export async function POST(request: Request) {
   try {
     await connectDB();
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
   }
 }
 
-// Update offering
+// PUT update offering (alternative without [id] route)
 export async function PUT(request: Request) {
   try {
     await connectDB();
@@ -99,6 +99,13 @@ export async function PUT(request: Request) {
       { new: true, runValidators: true }
     ).lean();
     
+    if (!updatedOffering) {
+      return NextResponse.json(
+        { success: false, error: "Offering not found" },
+        { status: 404 }
+      );
+    }
+    
     return NextResponse.json({ 
       success: true, 
       data: { ...updatedOffering, _id: updatedOffering._id.toString() } 
@@ -112,7 +119,7 @@ export async function PUT(request: Request) {
   }
 }
 
-// Delete offering
+// DELETE offering (alternative without [id] route)
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

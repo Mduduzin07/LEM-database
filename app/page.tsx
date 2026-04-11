@@ -10,8 +10,8 @@ import Footer from "./components/Footer";
 
 export default function Home() {
   return (
-    <div className="h-full flex flex-col">
-      <div className="h-full flex">
+    <div className="h-[calc(100vh-64px)] flex flex-col">
+      <div className="flex h-full">
         {/* Left Section */}
         <div className="hidden sm:flex w-1/3 border-r border-black/10 items-center justify-center bg-white">
           <img src="/logo.jpeg" className="w-72 object-contain" alt="Logo" />
@@ -49,8 +49,8 @@ export default function Home() {
         </div>
       </div>
       <div className="">
-        <Footer />
-      </div>
+        <Footer /> 
+      </div> 
     </div>
   );
 }

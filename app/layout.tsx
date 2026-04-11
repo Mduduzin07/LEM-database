@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; 
 import Navbar from "@/app/components/Navbar";
 import AuthProvider from "@/app/components/AuthProvider";
 
@@ -24,6 +26,7 @@ export default function RootLayout({
           <Navbar />
           <main>{children}</main>
           <Toaster position="top-right" />
+          <ToastContainer position="top-right" /> {/* Add this */}
         </AuthProvider>
       </body>
     </html>
